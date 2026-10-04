@@ -163,6 +163,13 @@ def save_csvs(master: pd.DataFrame, prices: pd.DataFrame, financials: pd.DataFra
 
 def save_database(master: pd.DataFrame, prices: pd.DataFrame, financials: pd.DataFrame, news: pd.DataFrame, run_log: dict) -> None:
     with sqlite3.connect(DB) as conn:
+        conn.executescript("""
+            DROP TABLE IF EXISTS company_master;
+            DROP TABLE IF EXISTS price_daily;
+            DROP TABLE IF EXISTS financial_snapshot;
+            DROP TABLE IF EXISTS news_articles;
+            DROP TABLE IF EXISTS etl_run_log;
+        """)
         conn.executescript(SCHEMA.read_text(encoding="utf-8"))
         master.to_sql("company_master", conn, if_exists="replace", index=False)
         prices.to_sql("price_daily", conn, if_exists="replace", index=False)
