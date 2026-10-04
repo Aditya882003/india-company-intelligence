@@ -8,7 +8,8 @@ CREATE TABLE IF NOT EXISTS company_master (
     peer_group TEXT,
     business_summary TEXT,
     monitoring_theme TEXT,
-    source_url TEXT
+    source_url TEXT,
+    aliases TEXT
 );
 
 CREATE TABLE IF NOT EXISTS price_daily (
@@ -43,11 +44,18 @@ CREATE TABLE IF NOT EXISTS financial_snapshot (
 
 CREATE TABLE IF NOT EXISTS news_articles (
     ticker TEXT NOT NULL,
+    company_name TEXT,
+    source TEXT,
+    publisher TEXT,
     published_at TEXT,
     title TEXT NOT NULL,
-    publisher TEXT,
+    summary TEXT,
     link TEXT,
-    guid TEXT PRIMARY KEY
+    guid TEXT PRIMARY KEY,
+    sentiment TEXT,
+    event_type TEXT,
+    coverage_count INTEGER,
+    corroboration TEXT
 );
 
 CREATE TABLE IF NOT EXISTS etl_run_log (
@@ -63,3 +71,4 @@ CREATE TABLE IF NOT EXISTS etl_run_log (
 
 CREATE INDEX IF NOT EXISTS idx_price_date ON price_daily(trade_date);
 CREATE INDEX IF NOT EXISTS idx_news_ticker_date ON news_articles(ticker, published_at);
+CREATE INDEX IF NOT EXISTS idx_news_source ON news_articles(source);

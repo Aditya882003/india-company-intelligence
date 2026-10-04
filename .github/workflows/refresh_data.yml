@@ -15,7 +15,7 @@ concurrency:
 jobs:
   refresh:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 35
     steps:
       - name: Checkout repository
         uses: actions/checkout@v5
@@ -41,9 +41,10 @@ jobs:
           with sqlite3.connect(db) as c:
               companies = pd.read_sql_query('select count(*) n from company_master', c).iloc[0,0]
               prices = pd.read_sql_query('select count(*) n from price_daily', c).iloc[0,0]
+              news = pd.read_sql_query('select count(*) n from news_articles', c).iloc[0,0]
           assert companies >= 20
           assert prices >= 1000
-          print({'companies': companies, 'price_rows': prices})
+          print({'companies': int(companies), 'price_rows': int(prices), 'news_rows': int(news)})
           PY
       - name: Commit refreshed data
         run: |

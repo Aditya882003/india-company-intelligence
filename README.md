@@ -1,6 +1,6 @@
-# 🇮🇳 India Company Intelligence Platform
+# 🇮🇳 India Company Intelligence Pro
 
-> **A public, auto-refreshing company-risk and research monitor for Indian listed companies.**
+> **A public live-tracking and research-prioritization platform for Indian listed companies, combining live quotes, technical analytics, fundamentals, multi-source verification and corroborated news.**
 
 [![CI](https://github.com/OWNER/REPO/actions/workflows/ci.yml/badge.svg)](https://github.com/OWNER/REPO/actions/workflows/ci.yml)
 [![Refresh](https://github.com/OWNER/REPO/actions/workflows/refresh_data.yml/badge.svg)](https://github.com/OWNER/REPO/actions/workflows/refresh_data.yml)
@@ -48,7 +48,7 @@ Shows ETL run history and exposes reusable SQL analysis queries included in the 
 
 ## Company universe
 
-The seed universe covers 25 large Indian listed businesses across:
+The seed universe covers 24 large Indian listed businesses across:
 
 - Financials
 - Information Technology
@@ -197,6 +197,18 @@ The score is **not** an investment rating. It is a research-triage mechanism.
 - News headlines are discovery metadata, not independently verified claims.
 - Financial ratios are not directly comparable across every sector, especially banks and other financial institutions.
 
+## Live tracking & verification
+
+The deployed dashboard separates a short-lived live quote layer from the scheduled historical ETL. While a user session is active, Streamlit fragments refresh the live quote and optional watchlist at a user-selected interval. The selected company's quote can be checked against NSE's public quote endpoint; mismatches are explicitly flagged for review. Yahoo Finance's exchange-delay table currently lists NSE data as real-time. For professional tick/order-book applications, use a licensed exchange feed or authenticated broker API.
+
+## Multi-source news intelligence
+
+The news ETL now combines Economic Times, Moneycontrol, Business Standard, LiveMint, Financial Express, BusinessLine and Google News discovery. Headlines are deduplicated, tagged by event type and sentiment, and clustered to show how many distinct sources cover similar stories. The dashboard exposes the source, timestamp, publisher, link, sentiment, event type and corroboration count.
+
+## Important data-use note
+
+The app stores headline metadata and links rather than copying article bodies. Some publishers impose personal/non-commercial or licensing conditions on RSS reuse; commercial redistribution should be reviewed before launch.
+
 ## Repository structure
 
 ```text
@@ -246,3 +258,27 @@ The repository uses common open-source patterns such as Streamlit dashboards, sc
 ## License
 
 MIT — see `LICENSE`.
+
+## v3 dashboard additions
+
+### Analyst Copilot
+The `🤖 Analyst Chat` tab provides a deterministic, data-grounded chatbot. It can answer questions about live/latest quote data, attention ranking, 30-day performance, financial metrics, sectors and stored multi-source news. It intentionally does not require an AI API key, which keeps the public Streamlit deployment usable for visitors without exposing credentials.
+
+### Separate stock and volume tracking
+The `📊 Stock & Volume` tab separates the market view into two independent interactive charts:
+- stock price candlesticks with SMA20, SMA50 and Bollinger Bands;
+- a dedicated traded-volume chart with 20-period average volume.
+
+The user can switch among 1d, 5d, 1mo and 3mo periods and intraday/daily intervals supported by the market-data source.
+
+### Graphical technical analysis
+The `📐 Technical Graphics` tab adds:
+- RSI 14 gauge and trend chart;
+- technical signal-balance gauge;
+- MACD histogram + signal lines;
+- SMA20/SMA50/SMA200;
+- ATR14;
+- relative volume;
+- a numeric technical snapshot.
+
+All technical indicators are descriptive analytics and are not investment advice.

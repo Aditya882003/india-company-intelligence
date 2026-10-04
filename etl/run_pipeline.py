@@ -8,7 +8,6 @@ from __future__ import annotations
 
 import argparse
 import json
-import math
 import logging
 import sqlite3
 import time
@@ -148,39 +147,10 @@ def fetch_financials(tickers: list[str], financial_sectors: dict[str, str]) -> t
 
 
 from etl.metrics import transform_prices
+from etl.news_sources import fetch_multi_source_news
 
-def fetch_news(master: pd.DataFrame, per_company: int = 12) -> tuple[pd.DataFrame, list[str]]:
-    rows = []
-    errors: list[str] = []
-    headers = {"User-Agent": "IndiaCompanyIntelligence/1.0 (research dashboard)"}
-    for _, r in master.iterrows():
-        ticker = r["ticker"]
-        company = r["company_name"]
-        try:
-            query = quote_plus(f'"{company}" India company results business')
-            url = f"https://news.google.com/rss/search?q={query}&hl=en-IN&gl=IN&ceid=IN:en"
-            resp = requests.get(url, headers=headers, timeout=20)
-            resp.raise_for_status()
-            root = ET.fromstring(resp.text)
-            count = 0
-            for item in root.findall("./channel/item"):
-                if count >= per_company:
-                    break
-                title = item.findtext("title") or ""
-                link = item.findtext("link") or ""
-                guid = item.findtext("guid") or link or f"{ticker}-{count}-{title}"
-                published = item.findtext("pubDate")
-                source_el = item.find("source")
-                publisher = source_el.text if source_el is not None else "Google News RSS"
-                rows.append({"ticker": ticker, "published_at": published, "title": title, "publisher": publisher, "link": link, "guid": guid})
-                count += 1
-            LOG.info("news refresh: %s (%d headlines)", ticker, count)
-        except Exception as exc:
-            msg = f"news {ticker}: {exc}"
-            LOG.warning(msg)
-            errors.append(msg)
-        time.sleep(0.15)
-    return pd.DataFrame(rows), errors
+def fetch_news(master: pd.DataFrame, per_company: int = 50) -> tuple[pd.DataFrame, list[str]]:
+    return fetch_multi_source_news(master, max_per_company=per_company)
 
 
 def save_csvs(master: pd.DataFrame, prices: pd.DataFrame, financials: pd.DataFrame, news: pd.DataFrame) -> None:
