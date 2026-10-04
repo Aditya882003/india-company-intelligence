@@ -48,7 +48,7 @@ Shows ETL run history and exposes reusable SQL analysis queries included in the 
 
 ## Company universe
 
-The seed universe covers 24 large Indian listed businesses across:
+The seed universe covers 25 large Indian listed businesses across:
 
 - Financials
 - Information Technology
