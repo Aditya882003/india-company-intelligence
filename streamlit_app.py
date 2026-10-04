@@ -82,9 +82,54 @@ def load_all():
 @st.cache_data(ttl=12, show_spinner=False)
 def live_quote(ticker: str) -> dict:
     try:
-        return fetch_yahoo_quote(ticker)
+        quote = fetch_yahoo_quote(ticker)
     except Exception as exc:
-        return {"ticker": ticker, "source": "Yahoo Finance / yfinance", "status": f"ERROR: {type(exc).__name__}"}
+        quote = {
+            "ticker": ticker,
+            "source": "Yahoo Finance / yfinance",
+            "status": f"ERROR: {type(exc).__name__}",
+            "price": None,
+        }
+
+    # If live provider fails, use the latest stored market record.
+    if quote.get("price") is None:
+        try:
+            hist = q(
+                "SELECT * FROM price_daily WHERE ticker=? ORDER BY trade_date DESC LIMIT 2",
+                (ticker,),
+            )
+            if not hist.empty:
+                latest = hist.iloc[0]
+                price = float(latest["close"])
+                prev = (
+                    float(hist.iloc[1]["close"])
+                    if len(hist) > 1 and pd.notna(hist.iloc[1]["close"])
+                    else None
+                )
+                change = price - prev if prev else None
+                pct_change = (change / prev * 100) if prev else None
+
+                return {
+                    "ticker": ticker,
+                    "source": "Scheduled ETL (cached close)",
+                    "status": "CACHED",
+                    "price": price,
+                    "previous_close": prev,
+                    "change": change,
+                    "pct_change": pct_change,
+                    "day_high": None,
+                    "day_low": None,
+                    "volume": (
+                        float(latest["volume"])
+                        if "volume" in latest.index and pd.notna(latest["volume"])
+                        else None
+                    ),
+                    "timestamp_utc": f"{latest['trade_date']}T00:00:00+00:00",
+                }
+        except Exception:
+            pass
+
+    return quote
 
 
 @st.cache_data(ttl=20, show_spinner=False)
