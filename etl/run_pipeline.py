@@ -5,6 +5,7 @@ uses Google News RSS. The pipeline is designed to fail safely: if one company/so
 other companies can still refresh, while the run log records errors.
 """
 from __future__ import annotations
+import math
 
 import argparse
 import json
