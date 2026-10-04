@@ -96,9 +96,9 @@ def live_board(tickers: tuple[str, ...]) -> pd.DataFrame:
 
 
 @st.cache_data(ttl=20, show_spinner=False)
-def intraday_chart(ticker: str) -> pd.DataFrame:
+def intraday_chart(ticker: str, period: str = "1d", interval: str = "1m") -> pd.DataFrame:
     try:
-        return fetch_intraday(ticker, period="1d", interval="1m")
+        return fetch_intraday(ticker, period=period, interval=interval)
     except Exception:
         return pd.DataFrame()
 
