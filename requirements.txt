@@ -2,6 +2,6 @@ streamlit==1.65.0
 pandas==2.3.3
 numpy==2.3.3
 plotly==6.3.0
-yfinance==0.2.66
+yfinance==1.7.0
 requests==2.32.5
 pytest==8.4.2
